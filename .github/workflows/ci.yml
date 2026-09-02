@@ -1,0 +1,45 @@
+name: CI Pipeline Spring Boot
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del codigo
+        uses: actions/checkout@v4
+
+      - name: Configurar JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build con Maven
+        run: mvn -B clean compile
+        working-directory: maddelivery
+
+      - name: Ejecutar pruebas unitarias
+        run: mvn -B test
+        working-directory: maddelivery
+
+      - name: Reporte de cobertura JaCoCo
+        run: mvn -B jacoco:report
+        working-directory: maddelivery
+
+      - name: Publicar reporte como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-jacoco
+          path: maddelivery/target/site/jacoco
+
+      - name: Verificar variable de entorno
+        env:
+          APP_ENV: ${{ secrets.APP_ENV_DEMO }}
+        run: echo "Ejecutando en el ambiente configurado"

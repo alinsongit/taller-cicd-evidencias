@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Taller CI/CD - Evidencias</title>
+<style>
+  :root{--azul:#1f3a5f;--verde:#1e7e34;--acento:#2f80ed;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',Calibri,Arial,sans-serif;color:#222;font-size:13px;padding:28px;background:#fff}
+  h1{font-size:24px;color:var(--azul);border-bottom:3px solid var(--acento);padding-bottom:8px;margin-bottom:4px}
+  .sub{color:#555;font-size:13px;margin-bottom:18px}
+  h2{font-size:16px;color:var(--azul);margin:22px 0 8px;background:#eef3fa;padding:6px 10px;border-left:5px solid var(--acento)}
+  h3{font-size:13px;color:#333;margin:12px 0 4px}
+  table{border-collapse:collapse;width:100%;margin:6px 0 12px;font-size:12px}
+  th,td{border:1px solid #ccc;padding:5px 8px;text-align:left}
+  th{background:#1f3a5f;color:#fff;font-weight:600}
+  td{background:#fff}
+  tr:nth-child(even) td{background:#f7f9fc}
+  code,pre{font-family:'Consolas','Courier New',monospace;font-size:11px}
+  pre{background:#f4f4f4;border:1px solid #ddd;padding:8px;border-radius:4px;overflow:auto;white-space:pre-wrap;word-break:break-word}
+  .badge{display:inline-block;padding:2px 12px;border-radius:12px;color:#fff;font-weight:700;font-size:12px}
+  .ok{background:#1e7e34}.fail{background:#c0392b}.warn{background:#b7950b}
+  .box{border:1px solid #d5e2f2;background:#f6faff;padding:8px 10px;border-radius:4px;margin:6px 0}
+  .verde{color:#1e7e34;font-weight:700}
+  .small{font-size:11px;color:#666}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .kpi{border:1px solid #e0e6ee;border-radius:6px;padding:12px;text-align:center;background:#fff}
+  .kpi .v{font-size:26px;font-weight:700;color:var(--azul)}
+  .kpi .l{font-size:11px;color:#666;text-transform:uppercase;letter-spacing:.5px}
+  .footer{margin-top:24px;border-top:1px solid #ccc;padding-top:8px;font-size:11px;color:#777}
+</style>
+</head>
+<body>
+
+<h1>Taller de Integración y Despliegue Continuo (CI/CD)</h1>
+<div class="sub">Proyecto <b>maddelivery</b> (Spring Boot 3.5.6 &middot; Java 21) &mdash; Reporte de evidencias por cada paso del pipeline &mdash; Repositorio: <b>Proyecto Actualizado</b></div>
+
+<h2>1. Resumen del pipeline implementado</h2>
+<table>
+  <tr><th style="width:30%">Etapa</th><th>Acción implementada</th><th style="width:22%">Resultado del paso</th></tr>
+  <tr><td><b>Paso 1</b> &mdash; Integración continua (CI)</td><td>GitHub Actions <code>.github/workflows/ci.yml</code>: compila, ejecuta pruebas y genera reporte de cobertura en cada push/PR a <code>main</code> y <code>develop</code>.</td><td><span class="badge ok">Verificado</span></td></tr>
+  <tr><td><b>Paso 2</b> &mdash; Build de la aplicación</td><td>Maven <code>clean compile</code> con JDK 21 (Temurin) y empaquetado del <code>.jar</code> ejecutable.</td><td><span class="badge ok">BUILD SUCCESS</span></td></tr>
+  <tr><td><b>Paso 3</b> &mdash; Pruebas unitarias</td><td>Suite de pruebas del carrito de compras: <code>CartServiceTest</code> y <code>CartControllerTest</code>.</td><td><span class="badge ok">11/11 OK</span></td></tr>
+  <tr><td><b>Paso 4</b> &mdash; Cobertura de código</td><td>Plugin <b>JaCoCo 0.8.12</b> (prepare-agent + report). Reporte publicado como artefacto <code>reporte-jacoco</code>.</td><td><span class="badge ok">Generado</span></td></tr>
+  <tr><td><b>Paso 5</b> &mdash; Despliegue/CD &amp; secretos</td><td>Secreto <code>APP_ENV_DEMO</code> (variable de entorno protegida) usado en la etapa final del flujo.</td><td><span class="badge ok">Configurado</span></td></tr>
+</table>
+
+<h2>2. Evidencia del Paso 2 &mdash; Build local (Maven)</h2>
+<div class="box"><b>Comando:</b> <code>mvn clean verify</code> (JDK 21 &middot; Maven 3.9.9 &middot; Spring Boot 3.5.6)</div>
+<pre>[INFO] --- maven-resources-plugin ---- (default-testResources) ---
+[INFO] --- jacoco:0.8.12:report (report) @ maddelivery ---
+[INFO] Loading execution data file ...target\jacoco.exec
+[INFO] Analyzed bundle 'maddelivery' with 19 classes
+[INFO] --- jar:3.4.2:jar (default-jar) @ maddelivery ---
+[INFO] Building jar: ...target\maddelivery-0.0.1-SNAPSHOT.jar
+[INFO] --- spring-boot:3.5.6:repackage (repackage) @ maddelivery ---
+[INFO] Replacing main artifact ...maddelivery-0.0.1-SNAPSHOT.jar with repackaged archive
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  01:04 min
+[INFO] Finished at: 2026-09-02T17:39:06-05:00</pre>
+<div class="box">Artefacto generado: <code>maddelivery-0.0.1-SNAPSHOT.jar</code> (<b>77.5 MB</b>, jar ejecutable con dependencias anidadas en <code>BOOT-INF/</code>).</div>
+
+<h2>3. Evidencia del Paso 3 &mdash; Pruebas unitarias</h2>
+<p><span class="badge ok">Tests run: 11, Failures: 0, Errors: 0, Skipped: 0</span></p>
+<table>
+  <tr><th>Clase de prueba</th><th>Ámbito</th><th>Tests</th><th>Fallos</th><th>Errores</th><th>Tiempo</th></tr>
+  <tr><td><code>CartControllerTest</code></td><td>Endpoints del carrito (REST/Controller)</td><td>6</td><td>0</td><td>0</td><td>16.64 s</td></tr>
+  <tr><td><code>CartServiceTest</code></td><td>Lógica de negocio del carrito (Servicio)</td><td>5</td><td>0</td><td>0</td><td>1.27 s</td></tr>
+</table>
+<h3>Salida del log Maven (Surefire)</h3>
+<pre>[INFO] Running com.maddelivery.maddelivery.controlador.CartControllerTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 16.64 s
+[INFO] Running com.maddelivery.maddelivery.servicio.CartServiceTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.270 s
+[INFO] Results:
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0</pre>
+
+<h2>4. Evidencia del Paso 4 &mdash; Cobertura de código (JaCoCo)</h2>
+<div class="box"><b>Plugin:</b> <code>jacoco-maven-plugin 0.8.12</code> con ejecuciones <code>prepare-agent</code> (fase init) y <code>report</code> (fase test). Reporte HTML en <code>target/site/jacoco/index.html</code>, publicado como artefacto <code>reporte-jacoco</code>.</div>
+<div class="grid2">
+  <div class="kpi"><div class="v">19</div><div class="l">Clases analizadas</div></div>
+  <div class="kpi"><div class="v">10</div><div class="l">Instrucciones</div></div>
+</div>
+<h3>Cobertura de las clases con pruebas unitarias</h3>
+<table>
+  <tr><th>Clase</th><th>Líneas cubiertas</th><th>Instrucciones cubiertas %</th></tr>
+  <tr><td><code>CartServiceImpl</code></td><td>30 de 31</td><td><span class="verde">93.7%</span></td></tr>
+  <tr><td><code>CartController</code></td><td>10 de 11</td><td><span class="verde">87.0%</span></td></tr>
+  <tr><td><code>CartEntity</code></td><td>5 de 5</td><td><span class="verde">100%</span></td></tr>
+</table>
+<p class="small">El reporte completo navegable se encuentra en <code>maddelivery/target/site/jacoco/</code> y como artefacto de GitHub Actions (<code>reporte-jacoco</code>).</p>
+
+<h2>5. Evidencia del Paso 1 &mdash; Pipeline en GitHub Actions (<code>.github/workflows/ci.yml</code>)</h2>
+<pre>name: CI Pipeline Spring Boot
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del codigo
+        uses: actions/checkout@v4
+      - name: Configurar JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+      - name: Build con Maven
+        run: mvn -B clean compile
+        working-directory: maddelivery
+      - name: Ejecutar pruebas unitarias
+        run: mvn -B test
+        working-directory: maddelivery
+      - name: Reporte de cobertura JaCoCo
+        run: mvn -B jacoco:report
+        working-directory: maddelivery
+      - name: Publicar reporte como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-jacoco
+          path: maddelivery/target/site/jacoco
+      - name: Verificar variable de entorno
+        env:
+          APP_ENV: ${{ secrets.APP_ENV_DEMO }}
+        run: echo "Ejecutando en el ambiente configurado"</pre>
+
+<h2>6. Evidencia del Paso 5 &mdash; Configuración de secretos</h2>
+<div class="box">En GitHub (Settings &rarr; Secrets and variables &rarr; Actions) se define el secreto <b><code>APP_ENV_DEMO</code></b> (valor de ejemplo: <code>workshop-2026</code>). El pipeline lo consume con <code>${{ secrets.APP_ENV_DEMO }}</code> y lo expone como variable de entorno <code>APP_ENV</code> en la etapa final. Los secretos nunca se registran en el log de la acción.</div>
+
+<h2>7. Control de versiones (Git)</h2>
+<table>
+  <tr><th>Hash</th><th>Mensaje del commit</th></tr>
+  <tr><td><code>3b4d2f6</code></td><td>chore: pipeline CI/CD con GitHub Actions, tests unitarios, cobertura JaCoCo, .gitignore y limpieza de credenciales</td></tr>
+  <tr><td><code>d49e508</code></td><td>Primer commit del proyecto actualizado</td></tr>
+</table>
+<div class="box">Rama por defecto: <code>main</code> &middot; Remoto: <code>https://github.com/Mauro2513/proyectoactualizado.git</code> &middot; <code>.gitignore</code> agregado para excluir <code>target/</code>, <code>.idea/</code> y credenciales.</div>
+
+<div class="footer">Informe generado el 02/09/2026 a partir de la ejecuci&oacute;n real del pipeline (BUILD SUCCESS) del proyecto maddelivery &mdash; Taller de CI/CD.</div>
+</body>
+</html>
